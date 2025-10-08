@@ -48,14 +48,9 @@ RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.
     rm /tmp/gradle-${GRADLE_VERSION}-bin.zip
 ENV PATH="/opt/gradle/gradle-${GRADLE_VERSION}/bin:${PATH}"
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/home/coder/.cargo/bin:${PATH}"
-
-
 # Create coder user (if deploying with Coder, ensure this matches your Coder config)
 RUN useradd -m -u 1000 coder && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER coder
 WORKDIR /home/coder
-
