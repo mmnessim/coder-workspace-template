@@ -21,7 +21,7 @@ RUN wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install Java (for Kotlin)
-RUN apt-get update && apt-get install -y openjdk-17-jdk
+RUN apt-get update && apt-get install -y openjdk-21-jdk
 
 # Install Kotlin
 ENV KOTLIN_VERSION=2.2.20
@@ -38,9 +38,24 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
 # Install yarn (optional, for JS/TS projects)
 RUN npm install -g yarn
 
+# Install sudo
+RUN apt-get update && apt-get install -y sudo
+
+# Install Gradle
+ENV GRADLE_VERSION=8.7
+RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -P /tmp && \
+    unzip -d /opt/gradle /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    rm /tmp/gradle-${GRADLE_VERSION}-bin.zip
+ENV PATH="/opt/gradle/gradle-${GRADLE_VERSION}/bin:${PATH}"
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/home/coder/.cargo/bin:${PATH}"
+
+
 # Create coder user (if deploying with Coder, ensure this matches your Coder config)
 RUN useradd -m -u 1000 coder && \
     echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER coder
 WORKDIR /home/coder
+

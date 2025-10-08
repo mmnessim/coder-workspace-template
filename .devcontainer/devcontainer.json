@@ -3,17 +3,23 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "golang.Go",
+        "fwcd.kotlin",
+        "vscjava.vscode-java-pack",
+        "ms-vscode.vscode-typescript-next",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb"
+      ]
+    }
   },
-  "extensions": [
-    "golang.Go",
-    "fwcd.kotlin",
-    "vscjava.vscode-java-pack",
-    "ms-vscode.vscode-typescript-next",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode"
-  ],
-  "postCreateCommand": "go version && java -version && node --version && npm --version",
+  "postCreateCommand": "go version && java -version && node --version && npm --version && rustc --version && cargo --version",
   "remoteUser": "coder"
 }
