@@ -20,16 +20,6 @@ RUN wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
     rm go${GO_VERSION}.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# Install Java (for Kotlin)
-RUN apt-get update && apt-get install -y openjdk-21-jdk
-
-# Install Kotlin
-ENV KOTLIN_VERSION=2.2.20
-RUN curl -sSLO https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip && \
-    unzip kotlin-compiler-${KOTLIN_VERSION}.zip -d /opt && \
-    ln -s /opt/kotlinc/bin/kotlinc /usr/local/bin/kotlinc && \
-    ln -s /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin && \
-    rm kotlin-compiler-${KOTLIN_VERSION}.zip
 
 # Install Node.js (LTS) and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
@@ -47,6 +37,15 @@ RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.
     unzip -d /opt/gradle /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     rm /tmp/gradle-${GRADLE_VERSION}-bin.zip
 ENV PATH="/opt/gradle/gradle-${GRADLE_VERSION}/bin:${PATH}"
+
+# Install .NET 9.0 SDK
+RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && sudo dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
+    && sudo apt-get update \
+    && sudo apt-get install -y apt-transport-https \
+    && sudo apt-get update \
+    && sudo apt-get install -y dotnet-sdk-9.0
 
 # Create coder user (if deploying with Coder, ensure this matches your Coder config)
 RUN useradd -m -u 1000 coder && \

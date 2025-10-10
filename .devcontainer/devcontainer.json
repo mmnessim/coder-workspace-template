@@ -1,1 +1,22 @@
-{ "name": "Go/Kotlin/JS/TS Dev Container", "build": { "dockerfile": "Dockerfile" }, "customizations": { "vscode": { "settings": { "terminal.integrated.shell.linux": "/bin/bash" }, "extensions": [ "golang.Go", "fwcd.kotlin", "vscjava.vscode-java-pack", "ms-vscode.vscode-typescript-next", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode" ] } }, "postCreateCommand": "go version && java -version && node --version && npm --version", "remoteUser": "coder" }
+{
+    "name": "Go/Kotlin/JS/TS Dev Container",
+     "build": {
+        "dockerfile": "Dockerfile"
+        },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+                },
+            "extensions": [
+                "golang.Go",
+                "ms-vscode.vscode-typescript-next",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-dotnettools.csharp" 
+            ]
+        }
+    },
+    "postCreateCommand": "go version && node --version && npm --version",
+    "remoteUser": "coder"
+}
