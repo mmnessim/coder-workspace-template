@@ -31,21 +31,50 @@ RUN npm install -g yarn
 # Install sudo
 RUN apt-get update && apt-get install -y sudo
 
-# Install Gradle
-ENV GRADLE_VERSION=8.7
-RUN wget https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -P /tmp && \
-    unzip -d /opt/gradle /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
-    rm /tmp/gradle-${GRADLE_VERSION}-bin.zip
-ENV PATH="/opt/gradle/gradle-${GRADLE_VERSION}/bin:${PATH}"
 
-# Install .NET 9.0 SDK
-RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && sudo dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
+# Install GitHub CLI (gh)
+RUN type -p curl >/dev/null || apt-get install -y curl \
+    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && sudo apt-get update \
-    && sudo apt-get install -y apt-transport-https \
-    && sudo apt-get update \
-    && sudo apt-get install -y dotnet-sdk-9.0
+    && sudo apt-get install -y gh
+
+# .NET SDK removed (not required for this configuration)
+
+# Install JDK 21 (OpenJDK)
+RUN sudo apt-get update && sudo apt-get install -y openjdk-21-jdk
+
+# Install Gradle 8.7
+RUN wget https://services.gradle.org/distributions/gradle-8.7-bin.zip -O /tmp/gradle.zip \
+    && sudo unzip -d /opt/gradle /tmp/gradle.zip \
+    && rm /tmp/gradle.zip
+ENV GRADLE_HOME=/opt/gradle/gradle-8.7
+ENV PATH="${GRADLE_HOME}/bin:${PATH}"
+
+# Kotlin compiler removed (not required)
+
+# Dart SDK removed (not required)
+
+
+# Install Bun (JavaScript runtime), Clojure tooling, and OCaml tooling
+RUN sudo apt-get update && sudo apt-get install -y \
+    clojure \
+    ocaml \
+    opam \
+    dune \
+    ocaml-native-compilers \
+    unzip \
+    && \
+    # Install clj-kondo (linter) and babashka (fast scripting)
+    curl -sSfL https://raw.githubusercontent.com/clj-kondo/clj-kondo/master/install.sh | bash -s -- -b /usr/local/bin || true && \
+    curl -sSfL https://github.com/babashka/babashka/releases/latest/download/babashka-linux-amd64 -o /usr/local/bin/bb || true && \
+    chmod +x /usr/local/bin/bb || true && \
+    # Install Bun system-wide
+    curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /usr/local || true && \
+    if [ -f /root/.bun/bin/bun ]; then mv /root/.bun/bin/bun /usr/local/bin/bun || true; fi
+
+# Flutter SDK removed (not required)
 
 # Create coder user (if deploying with Coder, ensure this matches your Coder config)
 RUN useradd -m -u 1000 coder && \
@@ -53,3 +82,10 @@ RUN useradd -m -u 1000 coder && \
 
 USER coder
 WORKDIR /home/coder
+
+# User-level setup: install user Bun, initialize opam and install OCaml tooling
+RUN curl -fsSL https://bun.sh/install | bash -s -- --bun-dir /home/coder/.bun && \
+    echo 'export PATH="/home/coder/.bun/bin:${PATH}"' >> /home/coder/.profile && \
+    /home/coder/.bun/bin/bun --version || true && \
+    opam init --disable-sandboxing --auto-setup -y || true && \
+    bash -lc "eval \"$(opam env)\" && opam install -y dune ocaml-lsp-server" || true
