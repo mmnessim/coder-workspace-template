@@ -16,10 +16,10 @@
         "vscjava.vscode-java-pack",
         "betterthantomorrow.calva",
         "borkdude.clojure-lsp",
-        "ocamllabs.ocaml-platform"
+        "sswg.swift-lang"
       ]
     }
   },
-  "postCreateCommand": "go version && node --version && npm --version && bun --version && clojure --version && ocamlc -v && opam --version",
+  // "postCreateCommand": "go version && node --version && npm --version && clojure --version && swift --version",
   "remoteUser": "coder"
 }
